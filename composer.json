@@ -1,0 +1,21 @@
+{
+    "name": "basteyy/various-php-snippets",
+    "type": "library",
+    "description": "",
+    "keywords": ["functions", "php", "snippets"],
+    "homepage": "https://github.com/basteyy/various-php-snippets",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sebastian Eiweleit",
+            "email": "b@steyy.de",
+            "homepage": "https://eiweleit.de",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "basteyy\\VariousPhpSnippets\\": "src"
+        }
+    }
+}
