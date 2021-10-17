@@ -16,6 +16,9 @@
     "autoload": {
         "psr-4": {
             "basteyy\\VariousPhpSnippets\\": "src"
-        }
+        },
+        "files": [
+            "/src/functions.php",
+        ]
     }
 }
