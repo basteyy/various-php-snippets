@@ -2,6 +2,8 @@
 
 namespace basteyy\VariousPhpSnippets;
 
+use Exception;
+
 if(!function_exists('getRandomString')) {
     /**
      * @throws Exception
@@ -62,12 +64,17 @@ if (!function_exists('varDebug')) {
 }
 
 
-if (!function_exists('varDebug')) {
+if (!function_exists('__')) {
     /**
-     * Simple placeholder for i18n
-     * @param ...$date
+     * @param string $string
+     * @param ...$args
+     * @return string
      */
     function __(string $string, ...$args) : string {
+
+        // Get the translation
+        $string = i18n::getTranslation($string);
+
         if(count($args) == 0 ) {
             return $string;
         }
