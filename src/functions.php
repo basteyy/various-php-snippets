@@ -3,6 +3,7 @@
 namespace basteyy\VariousPhpSnippets;
 
 use Exception;
+use JetBrains\PhpStorm\NoReturn;
 
 if(!function_exists('getRandomString')) {
     /**
@@ -43,22 +44,36 @@ if (!function_exists('slugify')) {
 }
 
 
-if (!function_exists('varDebug')) {
+if (!function_exists('vdarDebug')) {
     /**
      * Dump all passed variables and exit the script
-     * @param ...$date
+     * @param ...$mixed
      */
-    function varDebug(...$date)
+    #[NoReturn] function varDebug(...$mixed)
     {
         http_response_code(503);
         ob_end_clean();
-        echo '<pre>';
-        foreach ($date as $item) {
-            echo '<code>';
+        echo '<html><head><title>varDebug</title><meta charset="utf-8"><style>body{ background-color: #2D4263; color: #EEEEEE; padding: 1em; font-family: "Ubuntu Light",serif; font-weight: lighter } a { color: #C84B31;} a:hover {color:#A13333} pre { overflow: auto; } h2 span { font-size: .7em; float: right; font-weight: lighter; background-color: #C84B31; padding: .2em; } h2 span:hover { font-size: .7em; float: right; font-weight: lighter; background-color: #A13333; cursor: pointer; } code { display: block; padding: 1em; border-radius: .4em; background-color: #191919; font-family: "Ubuntu Mono",monospace; font-size: 1.1em; line-height: 1.5em; }</style></head><body>';
+        echo '<h1>Debugging ' . count($mixed) . ' Items</h1>';
+        $x = 0;
+        foreach ($mixed as $item) {
+            $x++;
+            echo '<h2>#'.$x.' <span class="google" data-debug="debug_'.$x.'">Google</span></h2><pre><code id="debug_'.$x.'">';
             var_dump($item);
-            echo '</code><hr />';
+            echo '</code></pre>';
         }
-        echo '</pre>';
+
+        echo'<h2>Backtrace</h2><pre><code>';
+        debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        echo '</code></pre>';
+
+        echo '<h2>Server-Data</h2><pre><code>';
+        foreach ($_SERVER as $name => $value) {
+            echo '$_SERVER["' . $name . '"]: ' . $value ."\n";
+        }
+        echo '</code></pre> <script> document.querySelectorAll("span.google").forEach(function (element, index, array){ element.addEventListener("click", function() { window.open("https://www.google.com/search?q=" + encodeURI("+php " + document.querySelector("#" + element.getAttribute("data-debug")).innerHTML), "_blank"); }) }); </script> <footer>Problems of suggestions? Submit it on <a href="https://github.com/basteyy/various-php-snippets">github/basteyy/various-php-snippets</a></footer></body></html>';
+
+
         die();
     }
 }
