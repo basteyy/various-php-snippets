@@ -60,3 +60,18 @@ if (!function_exists('varDebug')) {
         die();
     }
 }
+
+
+if (!function_exists('varDebug')) {
+    /**
+     * Simple placeholder for i18n
+     * @param ...$date
+     */
+    function __(string $string, ...$args) : string {
+        if(count($args) == 0 ) {
+            return $string;
+        }
+
+        return sprintf($string, ...$args);
+    }
+}
