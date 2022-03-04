@@ -22,6 +22,9 @@ class i18n
     /** @var array Storage for the translations */
     private static array $translations = [];
 
+    /** @var int $apcu_cache_ttl The ttl of the apcu cache in seconds */
+    private static int $apcu_cache_ttl = 360;
+
     /**
      * Try to translate $string
      * @param string $string
@@ -39,13 +42,26 @@ class i18n
 
         if(0 === count(self::$translations)) {
 
+            $is_apc_installed = function_exists('apcu_enabled') && apcu_enabled();
+
             foreach(self::$translation_folder as $folder) {
-                if(file_exists($folder . DIRECTORY_SEPARATOR . self::$translation_language . '.ini')) {
-                    self::$translations += parse_ini_file(
+
+                $cache_name = '_translation_' . self::$translation_language;
+
+                if($is_apc_installed && apcu_exists($cache_name)) {
+                    self::$translations += apcu_fetch($cache_name);
+                } elseif(file_exists($folder . DIRECTORY_SEPARATOR . self::$translation_language . '.ini')) {
+                    $parsed_ini = parse_ini_file(
                             $folder . DIRECTORY_SEPARATOR . self::$translation_language . '.ini',
                             false,
                             INI_SCANNER_RAW
                         );
+
+                    if($is_apc_installed) {
+                        apcu_store($cache_name, $parsed_ini, self::$apcu_cache_ttl);
+                    }
+
+                    self::$translations += $parsed_ini;
                 }
             }
         }
