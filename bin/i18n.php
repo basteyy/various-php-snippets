@@ -92,7 +92,11 @@ if ($argc !== 3) {
 
                         if(!isset($processed_strings[$hash_value])) {
                             $processed_strings[$hash_value] = htmlspecialchars($new_m, ENT_COMPAT);
-                            $build_string .= '; Original: ' . $new_m . PHP_EOL . $hash_value . ' = "' . htmlspecialchars($new_m, ENT_COMPAT) . '"' . _DOUBLE_EOL;
+                            if('"' === $sign) {
+                                $build_string .= '; Original: ' . $new_m . PHP_EOL . $hash_value . ' = "' . str_replace('"', '\"', $new_m) . '"' . _DOUBLE_EOL;
+                            } else {
+                                $build_string .= '; Original: ' . $new_m . PHP_EOL . $hash_value . ' = "' . str_replace("'", "\'", $new_m) . '"' . _DOUBLE_EOL;
+                            }
                         }
                     }
                 }
