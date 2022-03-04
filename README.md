@@ -64,14 +64,19 @@ I added a very basic i18n feature. The function based on a class with three stat
 
 ### Usage of i18n
 
-The languages files are in ini format
+The languages files are in ini format. For supporting all variantes of strings, the key is hashed using the xxh3 algorithm (which is the fastest algorithm for php now).
 
 ```ini
 ; Content of /var/www/lang/de_DE.ini
 
-Add = Hinzufügen
-Remove = Entfernen
-Remove %s Items = %s Dinge entfernen
+; Original: Add 
+2519a9e8bc4544e5 = Hinzufügen
+
+; Original: Remove
+d93080c2fe513df2 = Entfernen
+
+; Original: Remove %s Items
+4937f99272d45d21 = %s Dinge entfernen
 ```
 
 ```php

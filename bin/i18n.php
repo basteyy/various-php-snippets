@@ -1,6 +1,8 @@
 #!/usr/bin/php
 <?php
 
+const _DOUBLE_EOL = PHP_EOL . PHP_EOL;
+
 $special_word_list = [
         'yes', 'no', 'Yes', 'No'
 ];
@@ -13,7 +15,7 @@ function enl(...$strings)
         foreach ($strings as $string) {
             echo "\n" . "\t" . $string;
         }
-        echo "\n\n";
+        echo _DOUBLE_EOL;
     }
 }
 
@@ -41,8 +43,9 @@ if ($argc !== 3) {
     $files_found = [];
     $translations_counter = 0;
     $skip = false;
-    $build_string = '';
+    $build_string = '; File build on ' . date('d.m.y H:i:s') . _DOUBLE_EOL;
     $randkomkey = '{{' . uniqid() . '}}';
+    $processed_strings = [];
     foreach ($dir as $file) {
         if ($file->isFile()) {
             $content = file_get_contents($file->getPathname());
@@ -83,7 +86,12 @@ if ($argc !== 3) {
                         //enl('Found in ' . $file->getRealPath(), '"' . $match, "\t" . '====> ' . $new_m );
                         enl('Found in ' . $file->getRealPath(), "\t" . '==> ' . $new_m);
 
-                        $build_string .= $new_m . ' = "' . htmlspecialchars($new_m, ENT_COMPAT) . '"' . "\n";
+                        $hash_value = hash('xxh3', $new_m);
+
+                        if(!isset($processed_strings[$hash_value])) {
+                            $processed_strings[$hash_value] = htmlspecialchars($new_m, ENT_COMPAT);
+                            $build_string .= '; Original: ' . $new_m . PHP_EOL . $hash_value . ' = "' . htmlspecialchars($new_m, ENT_COMPAT) . '"' . _DOUBLE_EOL;
+                        }
                     }
                 }
 

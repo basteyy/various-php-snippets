@@ -50,7 +50,7 @@ class i18n
             }
         }
 
-        return self::$translations[$string] ?? $string;
+        return self::$translations[hash('xxh3', $string)] ?? $string;
 
     }
 
