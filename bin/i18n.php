@@ -4,7 +4,7 @@
 const _DOUBLE_EOL = PHP_EOL . PHP_EOL;
 
 $special_word_list = [
-        'yes', 'no', 'Yes', 'No'
+    'yes', 'no', 'Yes', 'No'
 ];
 
 function enl(...$strings)
@@ -46,6 +46,11 @@ if ($argc !== 3) {
     $build_string = '; File build on ' . date('d.m.y H:i:s') . _DOUBLE_EOL;
     $randkomkey = '{{' . uniqid() . '}}';
     $processed_strings = [];
+
+    if (file_exists($argv[2])) {
+        // Add to the existing file
+        $existing_translations = parse_ini_file($argv[2], false);
+    }
     foreach ($dir as $file) {
         if ($file->isFile()) {
             $content = file_get_contents($file->getPathname());
@@ -91,12 +96,21 @@ if ($argc !== 3) {
                         $hash_value = hash('xxh3', $new_m);
 
                         if(!isset($processed_strings[$hash_value])) {
-                            $processed_strings[$hash_value] = htmlspecialchars($new_m, ENT_COMPAT);
                             if('"' === $sign) {
-                                $build_string .= '; Original: ' . $new_m . PHP_EOL . $hash_value . ' = "' . str_replace('"', '\"', $new_m) . '"' . _DOUBLE_EOL;
+                                $processed_strings[$hash_value] = str_replace('"', '\"', $new_m);
                             } else {
-                                $build_string .= '; Original: ' . $new_m . PHP_EOL . $hash_value . ' = "' . str_replace("'", "\'", $new_m) . '"' . _DOUBLE_EOL;
+                                $processed_strings[$hash_value] = str_replace("'", "\'", $new_m);
                             }
+
+                            if(isset($existing_translations[$hash_value]) && $processed_strings[$hash_value] !== $existing_translations[$hash_value]) {
+                                // Translation already exists
+                                $build_string .= '; Following translation from former translation! ' . PHP_EOL;
+                                $build_string .= '; Original: ' . $new_m . PHP_EOL . '; ' . $hash_value . ' = "' . $processed_strings[$hash_value] . '"' . PHP_EOL;
+                                $build_string .= $hash_value . ' = "' . $existing_translations[$hash_value] . '"' . _DOUBLE_EOL;
+                            } else {
+                                $build_string .= '; Original: ' . $new_m . PHP_EOL . $hash_value . ' = "' . $processed_strings[$hash_value] . '"' . _DOUBLE_EOL;
+                            }
+
                         }
                     }
                 }
@@ -112,9 +126,6 @@ if ($argc !== 3) {
     } else {
         enl(count($files_found) . ' Files found with __() Function. ' . $translations_counter . ' Translations found and put into target file ' . $argv[2]);
 
-        if (file_exists($argv[2])) {
-            // Add to the existing file
-        }
 
         file_put_contents($argv[2], $build_string);
     }
