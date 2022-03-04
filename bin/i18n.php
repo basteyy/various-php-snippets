@@ -52,6 +52,8 @@ if ($argc !== 3) {
             if (str_contains($content, '__(')) {
                 $files_found[] = $file->getRealPath();
 
+                $build_string .= '; From file: ' . $file->getRealPath() . _DOUBLE_EOL;
+
                 preg_match_all(
                     '/__\(([^\)]*)\)/',
                     $content,
