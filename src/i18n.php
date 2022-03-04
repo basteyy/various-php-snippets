@@ -1,19 +1,26 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
+/**
+ * basteyy/various-php-snippets
+ *
+ * A few PHP snippets which I have used many times in many projects. Contributions are appreciated.
+ *
+ * @author Sebastian Eiweleit <sebastian@eiweleit.de>
+ * @website https://github.com/basteyy/various-php-snippets
+ * @license MIT
+ */
 
 namespace basteyy\VariousPhpSnippets;
 
 class i18n
 {
-    /** @var string where the language is stored */
-    private static string $translation_folder;
+    /** @var array where the language is stored */
+    private static array $translation_folder;
 
     /** @var string Trannslation File Name */
     private static string $translation_language;
 
     /** @var array Storage for the translations */
-    private static array $translations;
+    private static array $translations = [];
 
     /**
      * Try to translate $string
@@ -25,13 +32,22 @@ class i18n
         if(
             !isset(self::$translation_folder) ||
             !isset(self::$translation_language) ||
-            !file_exists(self::$translation_folder . DIRECTORY_SEPARATOR . self::$translation_language . '.ini')) {
+            count(self::$translation_folder) === 0
+        ) {
             return $string;
         }
 
-        if(!isset(self::$translations)) {
-            // Try to load translation
-            self::$translations = parse_ini_file(self::$translation_folder . DIRECTORY_SEPARATOR . self::$translation_language . '.ini');
+        if(0 === count(self::$translations)) {
+
+            foreach(self::$translation_folder as $folder) {
+                if(file_exists($folder . DIRECTORY_SEPARATOR . self::$translation_language . '.ini')) {
+                    self::$translations += parse_ini_file(
+                            $folder . DIRECTORY_SEPARATOR . self::$translation_language . '.ini',
+                            false,
+                            INI_SCANNER_RAW
+                        );
+                }
+            }
         }
 
         return self::$translations[$string] ?? $string;
@@ -53,6 +69,6 @@ class i18n
      * @return void
      */
     public static function addTranslationFolder(string $folder) : void {
-        self::$translation_folder = str_ends_with($folder, '/') ? substr($folder, 0, -1) : $folder;
+        self::$translation_folder[] = str_ends_with($folder, '/') ? substr($folder, 0, -1) : $folder;
     }
 }

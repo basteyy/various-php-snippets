@@ -12,10 +12,24 @@ composer require basteyy/various-php-snippets
 
 ## Snippets Overview
 
+### `remove_double_slashes`
+
+The function "remove_double_slashes" replaces double slashes in a string.
+
+#### Usage
+
+```php
+echo \basteyy\VariousPhpSnippets\remove_double_slashes('/var/www//data//foo//');
+// Result: /var/www/data/foo/
+```
+
 ### `getRandomString` 
 
-The function `getRandomString` generates a random string. Default length of the string is 32 signs. You can get longer or shorter strings by providint the int of the length to 
-the function: 
+The function `getRandomString` generates a random string. Default length of the string is 32 signs. You can get longer or shorter strings by providing the int of the length to 
+the function.
+
+#### Usage
+
 ```php
 echo \basteyy\VariousPhpSnippets\getRandomString(12);
 // Result: skjf33bfssds
@@ -23,7 +37,9 @@ echo \basteyy\VariousPhpSnippets\getRandomString(12);
 
 ### `slugify`
 
-The function `slugify` makes a slugged string from any string:
+The function `slugify` makes a slugified string from any string.
+
+#### Usage
 
 ```php
 echo \basteyy\VariousPhpSnippets\slugify('Hallo mein lieber');
@@ -34,9 +50,17 @@ echo \basteyy\VariousPhpSnippets\slugify('Hallo mein lieber');
 
 The function `varDebug` is a debugger, which uses var_debug but ends the script.
 
+#### Usage
+
+```php
+$var = [1,2,3];
+\basteyy\VariousPhpSnippets\varDebug($var);
+// Will print something like: https://osob.de/dl/wjbbv
+```
+
 ## i18n
 
-I added a very basic i18n feature. The function based on a class with three static methods and the translation shortcut `__`.
+I added a very basic i18n feature. The function based on a class with three static methods and the translation shortcut `__`. Be aware, that this is a really basic implementation. Currently, there is no fancy support for bigger strings. 
 
 ### Usage of i18n
 
@@ -57,6 +81,7 @@ use basteyy\VariousPhpSnippets\i18n;
 use function basteyy\VariousPhpSnippets\__;
 
 i18n::addTranslationFolder(__DIR__ . '/lang/');
+i18n::addTranslationFolder(__DIR__ . '/another_folder/');
 i18n::setTranslationLanguage('de_DE');
 
 echo __('Add');
@@ -75,6 +100,6 @@ echo __('A new string with placeholder %s', 'inside');
 // Result: A new string with placeholder inside
 ```
 
-#### Translate a app/website
+#### Translate an app/website
 
 You can use the bash script to generate the translation file. Please be aware, that this is a simple solution. It's easy to break it down with using `=`.

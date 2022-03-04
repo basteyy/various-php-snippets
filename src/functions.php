@@ -1,12 +1,34 @@
 <?php declare(strict_types=1);
+/**
+ * basteyy/various-php-snippets
+ *
+ * A few PHP snippets which I have used many times in many projects. Contributions are appreciated.
+ *
+ * @author Sebastian Eiweleit <sebastian@eiweleit.de>
+ * @website https://github.com/basteyy/various-php-snippets
+ * @license MIT
+ */
 
 namespace basteyy\VariousPhpSnippets;
 
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 
+
+if(!function_exists('remove_double_slashes')) {
+    /**
+     * Remove double slashed from a string
+     * @param string $path
+     * @return string
+     */
+    function remove_double_slashes(string $path) : string {
+        return str_replace('//', '/', $path);
+    }
+}
+
 if(!function_exists('getRandomString')) {
     /**
+     * Return a random key in the length of $length
      * @throws Exception
      */
     function getRandomString(int $length = 32) : string {
@@ -81,6 +103,7 @@ if (!function_exists('vdarDebug')) {
 
 if (!function_exists('__')) {
     /**
+     * Translation Helper
      * @param string $string
      * @param ...$args
      * @return string
