@@ -13,6 +13,7 @@ namespace basteyy\VariousPhpSnippets;
 
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
+use function DI\value;
 
 
 if(!function_exists('remove_double_slashes')) {
@@ -124,12 +125,15 @@ if (!function_exists('__')) {
 if (!function_exists('write_ini_file')) {
     /**
      * Write an ini configuration file
-     * @param string $file
-     * @param array  $array
      * @see https://stackoverflow.com/a/48433241/2378618
+     * @param string $file Filepath where the ini should be stored
+     * @param array $array The Data for the ini
+     * @param string|null $append_string In case, leading text for the ini (be aware, that this can broke the syntax)
+     * @param string|null $attach_string In case, attached text for the ini (be aware, that this can broke the syntax)
      * @return bool
      */
-    function write_ini_file($file, $array = []) {
+    function write_ini_file(string $file, array $array = [], string $append_string = null, string $attach_string = null ) {
+
         // check first argument is string
         if (!is_string($file)) {
             throw new \InvalidArgumentException('Function argument 1 must be a string.');
@@ -140,30 +144,36 @@ if (!function_exists('write_ini_file')) {
             throw new \InvalidArgumentException('Function argument 2 must be an array.');
         }
 
-        // process array
-        $data = array();
-        foreach ($array as $key => $val) {
-            if (is_array($val)) {
-                $data[] = "[$key]";
-                foreach ($val as $skey => $sval) {
-                    if (is_array($sval)) {
-                        foreach ($sval as $_skey => $_sval) {
-                            if (is_numeric($_skey)) {
-                                $data[] = $skey.'[] = '.(is_numeric($_sval) ? $_sval : (ctype_upper($_sval) ? $_sval : '"'.$_sval.'"'));
-                            } else {
-                                $data[] = $skey.'['.$_skey.'] = '.(is_numeric($_sval) ? $_sval : (ctype_upper($_sval) ? $_sval : '"'.$_sval.'"'));
-                            }
-                        }
-                    } else {
-                        $data[] = $skey.' = '.(is_numeric($sval) ? $sval : (ctype_upper($sval) ? $sval : '"'.$sval.'"'));
-                    }
-                }
-            } else {
-                $data[] = $key.' = '.(is_numeric($val) ? $val : (ctype_upper($val) ? $val : '"'.$val.'"'));
+        $parse_value = function(mixed $value) {
+
+            if(is_bool($value)) {
+                return $value ? 'yes' : 'no';
             }
-            // empty line
-            $data[] = null;
-        }
+
+            if(is_int($value) || is_float($value)) {
+                return $value;
+            }
+
+            if(is_string($value)) {
+                return '"' . str_replace('"', '\"', $value) . '"';
+            }
+
+        };
+
+        $array_deconstruct = function(array|string $array_or_string) use($parse_value, &$array_deconstruct) {
+            $data = [];
+            foreach($array_or_string as $item => $value) {
+                if(is_array($value)) {
+
+                    $data[] = PHP_EOL . "[$item]";
+                    $data[$item] = $array_deconstruct($value);
+                } else {
+                    $data[] = $item . ' = ' . $parse_value($value);
+                }
+            }
+
+            return implode(PHP_EOL, $data);
+        };
 
         // open file pointer, init flock options
         $fp = fopen($file, 'w');
@@ -177,7 +187,7 @@ if (!function_exists('write_ini_file')) {
         // loop until get lock, or reach max retries
         do {
             if ($retries > 0) {
-                usleep(rand(1, 5000));
+                usleep(rand(1, 25000));
             }
             $retries += 1;
         } while (!flock($fp, LOCK_EX) && $retries <= $max_retries);
@@ -188,7 +198,7 @@ if (!function_exists('write_ini_file')) {
         }
 
         // got lock, write data
-        fwrite($fp, implode(PHP_EOL, $data).PHP_EOL);
+        fwrite($fp, (isset($append_string) ? $append_string . PHP_EOL : '') . $array_deconstruct($array) . (isset($attach_string) ? PHP_EOL . $attach_string : ''));
 
         // release lock
         flock($fp, LOCK_UN);
