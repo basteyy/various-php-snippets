@@ -12,9 +12,9 @@ composer require basteyy/various-php-snippets
 
 ## Snippets Overview
 
-### `write_ini_file(string $file, array $array)`
+### `write_ini_file(string $file, array $array, string $append_string, string $attach_string)`
 
-The function `write_ini_file` will write the array `$array` into a INI-file `$file`. 
+The function `write_ini_file` will write the array `$array` into a INI-file `$file`. You can specify a header by using third parameter and a footer by using fourth parameter. Be aware that your header/footer is not validated. So, It's possible to break the INI by providing wrong formatted text. 
 
 Function posted from [Lawrence Cherone]() onm [Stackoverflow](). 
 
