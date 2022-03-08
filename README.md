@@ -12,6 +12,22 @@ composer require basteyy/various-php-snippets
 
 ## Snippets Overview
 
+### `write_ini_file(string $file, array $array)`
+
+The function `write_ini_file` will write the array `$array` into a INI-file `$file`. 
+
+Function posted from [Lawrence Cherone]() onm [Stackoverflow](). 
+
+#### Usage
+
+```php
+echo \basteyy\VariousPhpSnippets\write_ini_file('/var/www/data/foo/config.ini', ['something' => 'somewhere', 'hello' => 'world', 'foobar' => true]);
+// Result: /var/www/data/foo/config.ini
+// something = "somewhere"
+// hello = "world"
+// foobar = yes
+```
+
 ### `remove_double_slashes`
 
 The function "remove_double_slashes" replaces double slashes in a string.
