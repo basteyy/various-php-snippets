@@ -155,7 +155,7 @@ if (!function_exists('write_ini_file')) {
             }
 
             if(is_string($value)) {
-                return '"' . str_replace('"', '\"', $value) . '"';
+                return ctype_upper($value) ? $value :  '"' . str_replace('"', '\"', $value) . '"';
             }
 
         };
