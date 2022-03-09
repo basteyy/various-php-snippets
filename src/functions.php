@@ -69,8 +69,9 @@ if (!function_exists('slugify')) {
 
 if (!function_exists('varDebug')) {
     /**
-     * Dump all passed variables and exit the script
+     * Dump all passed variables and exit the script. Used a styled output. Accordion inmspired by Raúl Barrera
      * @param ...$mixed
+     * @see https://codepen.io/raubaca/pen/PZzpVe
      */
     #[NoReturn] function varDebug(...$mixed)
     {
