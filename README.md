@@ -60,23 +60,23 @@ $var = [1,2,3];
 
 ## i18n
 
-I added a very basic i18n feature. The function based on a class with three static methods and the translation shortcut `__`. Be aware, that this is a really basic implementation. Currently, there is no fancy support for bigger strings. 
+I added a very basic i18n feature. The function based on a class with three static methods and the translation shortcut `__`. Be aware, that this is a really basic implementation.
 
 ### Usage of i18n
 
-The languages files are in ini format. For supporting all variantes of strings, the key is hashed using the xxh3 algorithm (which is the fastest algorithm for php now).
+The languages files are in ini format. For supporting all variants of strings, the key is hashed using the xxh3 algorithm (which is the fastest algorithm for php now).
 
 ```ini
 ; Content of /var/www/lang/de_DE.ini
 
 ; Original: Add 
-2519a9e8bc4544e5 = Hinzufügen
+2519a9e8bc4544e5 = "Hinzufügen"
 
 ; Original: Remove
-d93080c2fe513df2 = Entfernen
+d93080c2fe513df2 = "Entfernen"
 
 ; Original: Remove %s Items
-4937f99272d45d21 = %s Dinge entfernen
+4937f99272d45d21 = "%s Dinge entfernen"
 ```
 
 ```php
@@ -108,3 +108,26 @@ echo __('A new string with placeholder %s', 'inside');
 #### Translate an app/website
 
 You can use the bash script to generate the translation file. Please be aware, that this is a simple solution. It's easy to break it down with using `=`.
+
+To translate an website, you can use the shell command
+
+```bash
+php vendor/basteyy/varous-php-snippets/bin/i18n.php source_folder target_file options --no-comments
+```
+
+In case you have your files, which shpuld be translated, stored under `/var/www/src/templates/` and you want to store the translation file at `/var/www/src/translations/dk_DK.ini`, you need to perform this:
+
+```bash
+php vendor/basteyy/varous-php-snippets/bin/i18n.php /var/www/src/templates/ /var/www/src/translations/dk_DK.ini
+```
+
+#### Options
+
+You can append the following options:
+
+`--no-comments` will output a translation file, without any comments. 
+
+
+```bash
+php vendor/basteyy/varous-php-snippets/bin/i18n.php /var/www/src/templates/ /var/www/src/translations/dk_DK.ini --no-comments
+```

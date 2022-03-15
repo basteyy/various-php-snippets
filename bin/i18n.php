@@ -1,8 +1,6 @@
 #!/usr/bin/php
 <?php
 
-const _DOUBLE_EOL = PHP_EOL . PHP_EOL;
-
 $special_word_list = [
     'yes', 'no', 'Yes', 'No'
 ];
@@ -23,9 +21,9 @@ function sanFolder() {
 
 }
 
-if ($argc !== 3) {
+if ($argc < 3 || $argc > 4) {
     enl('[Error]: Required parameter missing',
-        'Usage: php ' . $argv[0] . ' SOURCE TARGET',
+        'Usage: php ' . $argv[0] . ' SOURCE TARGET --no-comments (output without comments)',
         'Source is a folder and target a file',
         'Example:',
         'php ' . $argv[0] . ' ' . dirname(__DIR__) . ' ' . dirname(__DIR__) . '/lang/en_US.ini');
@@ -36,6 +34,11 @@ if ($argc !== 3) {
         return false;
     }
 
+    /* Comments in Output-File? */
+    $echo_comments = !in_array('--no-comments', $argv);
+
+    define("_DOUBLE_EOL", $echo_comments ? PHP_EOL . PHP_EOL : PHP_EOL);
+
     /** @var DirectoryIterator $dir */
     /** @var SplFileInfo $file */
     //$dir = new DirectoryIterator($argv[1]);
@@ -43,8 +46,19 @@ if ($argc !== 3) {
     $files_found = [];
     $translations_counter = 0;
     $skip = false;
-    $build_string = '; File build on ' . date('d.m.y H:i:s') . _DOUBLE_EOL;
+    if($echo_comments) {
+        $build_string = '; File build on ' . date('d.m.y H:i:s') . _DOUBLE_EOL;
+    }
+
     $randkomkey = '{{' . uniqid() . '}}';
+
+    /* Random Key for replacing \" */
+    $back_slashed_double_quote_replacement = '{{' . hash('xxh3', uniqid() . '"') . '}}';
+
+    /* Random Key for replacing \' */
+    $back_slashed_single_quote_replacement = '{{' . hash('xxh3', uniqid() . "'") . '}}';
+
+
     $processed_strings = [];
 
     if (file_exists($argv[2])) {
@@ -57,58 +71,66 @@ if ($argc !== 3) {
             if (str_contains($content, '__(')) {
                 $files_found[] = $file->getRealPath();
 
-                $build_string .= '; From file: ' . $file->getRealPath() . _DOUBLE_EOL;
+                if($echo_comments) {
+                    $build_string .= '; From file: ' . $file->getRealPath() . _DOUBLE_EOL;
+                }
+
+                $content = str_replace('\"', $back_slashed_double_quote_replacement, $content);
+                $content = str_replace("\'", $back_slashed_single_quote_replacement, $content);
 
                 preg_match_all(
-                    '/__\(([^\)]*)\)/',
+                    '#__\(([\'"])(.*?)\1.#ms',
                     $content,
                     $matches,
-                    PREG_PATTERN_ORDER
+                    PREG_SET_ORDER
                 );
 
-                foreach ($matches[1] as $match) {
+                foreach ($matches as $match) {
 
-                    if ('"' === $match[0]) {
+                    list(,$used_sign, $string) = $match;
+
+                    if ('"' === $used_sign) {
                         $sign = '"';
                         $sign_escape = '\"';
-                    } elseif ("'" === $match[0]) {
+                    } elseif ("'" === $used_sign) {
                         $sign = "'";
                         $sign_escape = "\'";
                     } else {
                         $skip = true;
                     }
 
+
                     if (!$skip) {
                         $translations_counter++;
 
-                        // Remove first sign
-                        $m = substr($match, 1, -1);
-                        $m = str_replace($sign_escape, $randkomkey, $m);
-                        $new_m = strstr($m, $sign, true);
-                        if (false === $new_m) {
-                            $new_m = $m;
+                        $hash_value = hash('xxh3', $string);
+                        $new_string = str_replace($sign, $sign_escape, $string);
+
+                        if($echo_comments) {
+                            enl('Found in ' . $file->getRealPath(), "\t" . '==> ' . $new_string);
                         }
 
-                        $new_m = str_replace($randkomkey, $sign_escape, $new_m);
-                        //enl('Found in ' . $file->getRealPath(), '"' . $match, "\t" . '====> ' . $new_m );
-                        enl('Found in ' . $file->getRealPath(), "\t" . '==> ' . $new_m);
-
-                        $hash_value = hash('xxh3', $new_m);
 
                         if(!isset($processed_strings[$hash_value])) {
                             if('"' === $sign) {
-                                $processed_strings[$hash_value] = str_replace('"', '\"', $new_m);
+                                $processed_strings[$hash_value] = str_replace('"', '\"', $new_string);
                             } else {
-                                $processed_strings[$hash_value] = str_replace("'", "\'", $new_m);
+                                $processed_strings[$hash_value] = str_replace("'", "\'", $new_string);
                             }
 
                             if(isset($existing_translations[$hash_value]) && $processed_strings[$hash_value] !== $existing_translations[$hash_value]) {
                                 // Translation already exists
-                                $build_string .= '; Following translation from former translation! ' . PHP_EOL;
-                                $build_string .= '; Original: ' . $new_m . PHP_EOL . '; ' . $hash_value . ' = "' . $processed_strings[$hash_value] . '"' . PHP_EOL;
+                                if($echo_comments) {
+                                    $build_string .= '; Following translation from former translation! ' . PHP_EOL;
+                                    $build_string .= '; Original: ' . str_replace("\n", "\n;", $new_string ) . PHP_EOL . '; ' . $hash_value . ' = "' . $processed_strings[$hash_value] . '"' . PHP_EOL;
+                                }
                                 $build_string .= $hash_value . ' = "' . $existing_translations[$hash_value] . '"' . _DOUBLE_EOL;
                             } else {
-                                $build_string .= '; Original: ' . $new_m . PHP_EOL . $hash_value . ' = "' . $processed_strings[$hash_value] . '"' . _DOUBLE_EOL;
+                                if($echo_comments) {
+                                    $build_string .= '; Original: ' . str_replace("\n", "\n;", $new_string ) . PHP_EOL;
+                                }
+                                $build_string .= $hash_value . ' = "' . $processed_strings[$hash_value] . '"' .
+                                    _DOUBLE_EOL;
                             }
 
                         }
@@ -126,6 +148,9 @@ if ($argc !== 3) {
     } else {
         enl(count($files_found) . ' Files found with __() Function. ' . $translations_counter . ' Translations found and put into target file ' . $argv[2]);
 
+
+        $build_string = str_replace($back_slashed_double_quote_replacement, '\"', $build_string);
+        $build_string = str_replace($back_slashed_single_quote_replacement, "\'", $build_string);
 
         file_put_contents($argv[2], $build_string);
     }
