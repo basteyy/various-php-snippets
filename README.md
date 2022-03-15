@@ -131,3 +131,4 @@ You can append the following options:
 ```bash
 php vendor/basteyy/varous-php-snippets/bin/i18n.php /var/www/src/templates/ /var/www/src/translations/dk_DK.ini --no-comments
 ```
+
