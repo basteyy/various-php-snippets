@@ -75,33 +75,64 @@ if (!function_exists('varDebug')) {
      */
     #[NoReturn] function varDebug(...$mixed)
     {
-        http_response_code(503);
-        ob_end_clean();
-        echo '<html><head><title>varDebug</title><meta charset="utf-8"><style>body{ background-color: #2D4263; color: #EEEEEE; padding: 1em; font-family: "Ubuntu Light",serif; font-weight: lighter; max-width: 99vw; } a { color: #C84B31;} a:hover {color:#A13333} pre { overflow: auto; } label span { position: absolute; right: 15vw; } pre { height: 0; margin:0; } label span, .copy { font-size: .7em; float: right; font-weight: lighter; background-color: #C84B31; padding: .2em; } label span:hover, .copy:hover { font-size: .7em; float: right; font-weight: lighter; background-color: #A13333; cursor: pointer; } code { display: block; padding: 1em; border-radius: .4em; background-color: #191919; font-family: "Ubuntu Mono",monospace; font-size: 1.1em; line-height: 1.5em; } footer { padding: 1em; text-align: right; } .accordion { overflow: hidden; box-shadow: 0 4px 4px -2px rgba(0, 0, 0, 0.5); border-radius: 8px; } .accordion label { border-radius-topleft: 8px; border-radius-topright: 8px; display: flex; justify-content: space-between; padding: 1em; background: #2c3e50; font-weight: bold; cursor: pointer; } .accordion label:hover { background: #1a252f; } .accordion label::after { content: "❯"; width: 1em; height: 1em; text-align: center; transition: all 0.35s; } .accordion input { display: none; } .accordion pre code { border-radius: 0; } .accordion input:checked + label { background: #1a252f; } .accordion input:checked + label::after { transform: rotate(90deg); } .accordion input:checked ~ pre { height: auto; } </style></head><body>';
 
-        echo '<div class="accordion">' . PHP_EOL;
+        $cache_output = function($item) {
+            ob_clean();
+            var_dump($item);
+
+            $data = ob_get_contents();
+
+            return is_string($data) ? (htmlentities($data)) : 'nodata' . $data;
+        };
+
         $x = 0;
+        $data_collection = '';
         foreach ($mixed as $item) {
             $x++;
             $xx = time() . $x;
-            echo '<div><input type="checkbox" id="_debug_'.$xx.'" checked /><label for="_debug_'.$xx.'">#'.$x.' <span class="google" data-debug="debug_'.$xx.'">Google</span></label> <pre><code id="debug_'.$xx.'">';
-            var_dump($item);
-            echo '</code></pre></div>';
+            $data_collection .= '<div><input type="checkbox" id="_debug_'.$xx.'" checked /><label for="_debug_'.$xx.'">#'.$x.' <span class="google" data-debug="debug_'.$xx.'">Google</span></label> <pre><code id="debug_'.$xx.'">';
+            $data_collection .= $cache_output($item);
+            $data_collection .= '</code></pre></div>';
         }
+
+        $enviremental = ['SERVER' => $_SERVER, 'POST' => $_POST,'GET' => $_GET, 'REQUEST' => $_REQUEST ];
+
+        foreach ($enviremental  as $env => $values) {
+            $data_collection .= '<div id="' . $env . '"><input type="checkbox" id="_'.$env.'"><label for="_'.$env.'">$_'.$env.'</label> <pre><code><table>';
+
+            foreach($enviremental[$env] as $name => $content) {
+                $data_collection .= sprintf('<tr><td class="title"><span class="copyme">$_%s[\'%s\']</span> </td> <td>=&gt;</td>  <td><pre class="in-table"><code>%s</code></pre></td></tr>',
+                    $env, $name,
+                    $cache_output
+                ($content));
+            }
+
+           // $data_collection .= $cache_output();
+            $data_collection .= '</table></code></pre></div>' . PHP_EOL;
+        }
+
+        http_response_code(503);
+        ob_clean();
+
+        echo '<html><head><title>varDebug</title><meta charset="utf-8"><style>body{ background-color: #2D4263; color: #EEEEEE; padding: 1em; font-family: "Ubuntu Light",serif; font-weight: lighter; max-width: 99vw; } a { color: #C84B31;} a:hover {color:#A13333} pre { overflow: auto; } label span { position: absolute; right: 15vw; } pre:not(.in-table) { height: 0; margin:0; } label span, .copy { font-size: .7em; float: right; font-weight: lighter; background-color: #C84B31; padding: .2em; } label span:hover, .copy:hover { font-size: .7em; float: right; font-weight: lighter; background-color: #A13333; cursor: pointer; } code { display: block; padding: 1em; border-radius: .4em; background-color: #191919; font-family: "Ubuntu Mono",monospace; font-size: 1.1em; line-height: 1.5em; }pre.in-table{margin:0} pre.in-table>code {padding:0} footer { padding: 1em; text-align: right; } .accordion { overflow: hidden; box-shadow: 0 4px 4px -2px rgba(0, 0, 0, 0.5); border-radius: 8px; } .accordion label { border-radius-topleft: 8px; border-radius-topright: 8px; display: flex; justify-content: space-between; padding: 1em; background: #2c3e50; font-weight: bold; cursor: pointer; } .accordion label:hover { background: #1a252f; } .accordion label::after { content: "❯"; width: 1em; height: 1em; text-align: center; transition: all 0.35s; } .accordion input { display: none; } .accordion pre code { border-radius: 0; } .accordion input:checked + label { background: #1a252f; } .accordion input:checked + label::after { transform: rotate(90deg); } .accordion input:checked ~ pre { height: auto; } .copyme:hover {cursor: pointer; background-color: #A13333;} td {padding:.4em;} table {width:100%;border-collapse: collapse;} table tr {margin:0} tr:hover td, tr:hover td pre code { background: #2c3e50;} td.title {width: 25%;}</style></head><body>';
+
+        echo '<div class="accordion">' . PHP_EOL;
+
+        echo $data_collection;
 
         echo'<div id="backtrace"><input type="checkbox" id="_backtrace"><label for="_backtrace">Backtrace</label> <pre><code>';
         debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         echo '</code></pre></div> ';
 
-        $enviremental = ['SERVER' => $_SERVER, 'POST' => $_POST,'GET' => $_GET, 'REQUEST' => $_REQUEST ];
-
-        foreach ($enviremental  as $env => $values) {
-            echo '<div id="' . $env . '"><input type="checkbox" id="_'.$env.'"><label for="_'.$env.'">$_'.$env.'</label> <pre><code>';
-            var_dump($enviremental[$env]);
-            echo '</code></pre></div>' . PHP_EOL;
-        }
-
-        echo '</div><script> document.querySelectorAll("span.google").forEach(function (element, index, array){ element.addEventListener("click", function() { window.open("https://www.google.com/search?q=" + encodeURI("+php " + document.querySelector("#" + element.getAttribute("data-debug")).innerHTML), "_blank"); }) }); </script> <footer>Problems or suggestions? Submit it on <a href="https://github.com/basteyy/various-php-snippets">github/basteyy/various-php-snippets</a></footer></body></html>';
+        echo '</div><script> document.querySelectorAll("span.google").forEach(function (element, index, array){ element.addEventListener("click", function() { window.open("https://www.google.com/search?q=" + encodeURI("+php " + document.querySelector("#" + element.getAttribute("data-debug")).innerHTML), "_blank"); }) }); 
+    document.querySelectorAll("span.copyme").forEach(function (element, index, array){
+        element.addEventListener("click", function() {
+            navigator.clipboard.writeText(element.innerHTML);
+        });
+    });
+    
+    
+    </script> <footer>Problems or suggestions? Submit it on <a href="https://github.com/basteyy/various-php-snippets">github/basteyy/various-php-snippets</a></footer></body></html>';
 
         exit();
     }
