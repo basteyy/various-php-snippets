@@ -12,6 +12,21 @@ composer require basteyy/various-php-snippets
 
 ## Snippets Overview
 
+### `getDateTimeFormat`
+
+The function `getDateTimeFormat` create a valid [MySQL-Datetime-Formatted](https://dev.mysql.com/doc/refman/8.0/en/datetime.html) datetime.
+
+By default the function will create the current datetime. You can pass a [DateTime](https://www.php.net/manual/en/class.datetime) Instance to change the output.
+
+#### Usage
+```php
+echo \basteyy\VariousPhpSnippets\getDateTimeFormat();
+// Result: current date time in format: yyy-dd-mm hh:mm:ii
+
+echo \basteyy\VariousPhpSnippets\getDateTimeFormat((new DateTime('2020-01-01 10:10:10'))->modify('+2 years'));
+// Result: 2022-01-01 10:10:10
+```
+
 ### `remove_double_slashes`
 
 The function "remove_double_slashes" replaces double slashes in a string.

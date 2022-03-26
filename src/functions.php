@@ -11,10 +11,21 @@
 
 namespace basteyy\VariousPhpSnippets;
 
+use DateTime;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
-use function DI\value;
 
+if (!function_exists('getDateTimeFormat')) {
+    /**
+     * Heller Function for creating a correct formatted date-time-string (for using in databases e.g.)
+     * @param DateTime|null $dateTime
+     * @return string
+     */
+    function getDateTimeFormat(DateTime $dateTime = null): string
+    {
+        return ($dateTime ?? new DateTime('now'))->format('Y-m-d H:i:s');
+    }
+}
 
 if(!function_exists('remove_double_slashes')) {
     /**
@@ -75,7 +86,6 @@ if (!function_exists('varDebug')) {
      */
     #[NoReturn] function varDebug(...$mixed)
     {
-
         $cache_output = function($item) {
             ob_clean();
             var_dump($item);
