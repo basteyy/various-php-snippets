@@ -91,7 +91,7 @@ The function `varDebug` is a debugger, which uses var_debug but ends the script.
 ```php
 $var = [1,2,3];
 \basteyy\VariousPhpSnippets\varDebug($var);
-// Will print something like: https://osob.de/dl/wjbbv
+// Will print something like: https://osob.de/v/wjbbv
 ```
 
 ## i18n
