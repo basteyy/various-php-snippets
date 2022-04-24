@@ -17,13 +17,37 @@ use JetBrains\PhpStorm\NoReturn;
 
 if (!function_exists('getDateTimeFormat')) {
     /**
-     * Heller Function for creating a correct formatted date-time-string (for using in databases e.g.)
+     * Function for creating a correct formatted date-time-string (for using in databases e.g.)
      * @param DateTime|null $dateTime
      * @return string
      */
     function getDateTimeFormat(DateTime $dateTime = null): string
     {
         return ($dateTime ?? new DateTime('now'))->format('Y-m-d H:i:s');
+    }
+}
+
+if (!function_exists('getNiceDateTimeFormat')) {
+    /**
+     * Get dateTime as a nice to read string.
+     * @param DateTime|null $dateTime
+     * @param string|null $locale
+     * @return string
+     */
+    function getNiceDateTimeFormat(DateTime $dateTime = null, string $locale = null): string
+    {
+        if(!$dateTime) {
+            $dateTime = new \DateTime('now');
+        }
+
+        if(!isset($locale)) {
+            $locale = substr(\Locale::getDefault(), 0, 2);
+        }
+
+        return $dateTime->format(match ($locale) {
+            'de' => 'd. F y, H:i',
+            default => 'F d. y, h:i a'
+        });
     }
 }
 
@@ -49,6 +73,12 @@ if(!function_exists('getRandomString')) {
 }
 
 if (!function_exists('slugify')) {
+    /**
+     * Convert a string into a webaddress optimzied version
+     * @param string $text
+     * @param string $divider
+     * @return string
+     */
     function slugify(string $text, string $divider = '-'): string
     {
         // replace non letter or digits by divider
@@ -76,7 +106,6 @@ if (!function_exists('slugify')) {
         return $text;
     }
 }
-
 
 if (!function_exists('varDebug')) {
     /**
@@ -134,15 +163,7 @@ if (!function_exists('varDebug')) {
         debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         echo '</code></pre></div> ';
 
-        echo '</div><script> document.querySelectorAll("span.google").forEach(function (element, index, array){ element.addEventListener("click", function() { window.open("https://www.google.com/search?q=" + encodeURI("+php " + document.querySelector("#" + element.getAttribute("data-debug")).innerHTML), "_blank"); }) }); 
-    document.querySelectorAll("span.copyme").forEach(function (element, index, array){
-        element.addEventListener("click", function() {
-            navigator.clipboard.writeText(element.innerHTML);
-        });
-    });
-    
-    
-    </script> <footer>Problems or suggestions? Submit it on <a href="https://github.com/basteyy/various-php-snippets">github/basteyy/various-php-snippets</a></footer></body></html>';
+        echo '</div><script> document.querySelectorAll("span.google").forEach(function (element, index, array){ element.addEventListener("click", function() { window.open("https://www.google.com/search?q=" + encodeURI("+php " + document.querySelector("#" + element.getAttribute("data-debug")).innerHTML), "_blank"); }) }); document.querySelectorAll("span.copyme").forEach(function (element, index, array){element.addEventListener("click", function() {navigator.clipboard.writeText(element.innerHTML);});});</script> <footer>Problems or suggestions? Submit it on <a href="https://github.com/basteyy/various-php-snippets">github/basteyy/various-php-snippets</a></footer></body></html>';
 
         exit();
     }
@@ -179,17 +200,8 @@ if (!function_exists('write_ini_file')) {
      * @param string|null $attach_string In case, attached text for the ini (be aware, that this can broke the syntax)
      * @return bool
      */
-    function write_ini_file(string $file, array $array = [], string $append_string = null, string $attach_string = null ) {
-
-        // check first argument is string
-        if (!is_string($file)) {
-            throw new \InvalidArgumentException('Function argument 1 must be a string.');
-        }
-
-        // check second argument is array
-        if (!is_array($array)) {
-            throw new \InvalidArgumentException('Function argument 2 must be an array.');
-        }
+    function write_ini_file(string $file, array $array = [], string $append_string = null, string $attach_string = null ): bool
+    {
 
         $parse_value = function(mixed $value) {
 

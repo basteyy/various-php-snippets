@@ -1,8 +1,8 @@
 {
     "name": "basteyy/various-php-snippets",
     "type": "library",
-    "description": "",
-    "keywords": ["functions", "php", "snippets"],
+    "description": "A small set of function I needed often in small projects. And a simple translation function.",
+    "keywords": ["functions", "php", "snippets", "l18n"],
     "homepage": "https://github.com/basteyy/various-php-snippets",
     "license": "MIT",
     "authors": [
@@ -24,6 +24,7 @@
     "require": {
         "php": "8.1.*",
         "ext-iconv": "*",
-        "ext-apcu": "*"
+        "ext-apcu": "*",
+        "ext-intl": "*"
     }
 }
