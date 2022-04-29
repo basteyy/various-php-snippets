@@ -69,9 +69,47 @@ if (!function_exists('getRandomString')) {
      * Return a random key in the length of $length
      * @throws Exception
      */
-    function getRandomString(int $length = 32): string
+    function getRandomString(int $length = 32) : string
     {
         return substr(bin2hex(random_bytes($length)), 0, $length);
+    }
+}
+
+if (!function_exists('getRandomLowerAlphaString')) {
+    /**
+     * Return a random key in the length of $length
+     * @throws Exception
+     */
+    function getRandomLowerAlphaString(int $length = 32) : string
+    {
+        return getRandomAlphaString($length, 'abcdefghijklmnopqrstuvwxyz');
+    }
+}
+
+if (!function_exists('getRandomUpperAlphaString')) {
+    /**
+     * Return a random key in the length of $length
+     * @throws Exception
+     */
+    function getRandomUpperAlphaString(int $length = 32) : string
+    {
+        return getRandomAlphaString($length, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+    }
+}
+
+if (!function_exists('getRandomAlphaString')) {
+    /**
+     * Return a random key in the length of $length
+     * @throws Exception
+     */
+    function getRandomAlphaString(int $length = 32, string $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') : string
+    {
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
     }
 }
 
