@@ -48,6 +48,8 @@ if ($argc < 3 || $argc > 4) {
     $skip = false;
     if($echo_comments) {
         $build_string = '; File build on ' . date('d.m.y H:i:s') . _DOUBLE_EOL;
+    } else {
+        $build_string = '';
     }
 
     $randkomkey = '{{' . uniqid() . '}}';
