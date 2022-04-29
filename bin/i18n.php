@@ -112,11 +112,13 @@ if ($argc < 3 || $argc > 4) {
 
 
                         if(!isset($processed_strings[$hash_value])) {
-                            if('"' === $sign) {
-                                $processed_strings[$hash_value] = str_replace('"', '\"', $new_string);
-                            } else {
+                            if("'" === $sign) {
                                 $processed_strings[$hash_value] = str_replace("'", "\'", $new_string);
                             }
+
+                            /** Because always its inside doubles */
+                            $processed_strings[$hash_value] = str_replace('"', '\"', $new_string);
+                            $processed_strings[$hash_value] = str_replace(["\n\r", "\n", "\r"], '', $new_string);
 
                             if(isset($existing_translations[$hash_value]) && $processed_strings[$hash_value] !== $existing_translations[$hash_value]) {
                                 // Translation already exists
