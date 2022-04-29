@@ -48,20 +48,25 @@ class i18n
 
                 $cache_name = '_translation_' . self::$translation_language;
 
-                if($is_apc_installed && apcu_exists($cache_name)) {
+                if($is_apc_installed && apcu_exists($cache_name) && is_array(apcu_fetch($cache_name))) {
                     self::$translations += apcu_fetch($cache_name);
                 } elseif(file_exists($folder . DIRECTORY_SEPARATOR . self::$translation_language . '.ini')) {
+
                     $parsed_ini = parse_ini_file(
                             $folder . DIRECTORY_SEPARATOR . self::$translation_language . '.ini',
                             false,
                             INI_SCANNER_RAW
                         );
 
-                    if($is_apc_installed) {
-                        apcu_store($cache_name, $parsed_ini, self::$apcu_cache_ttl);
-                    }
+                    /** Only on valid array */
+                    if(is_array($parsed_ini)) {
 
-                    self::$translations += $parsed_ini;
+                        if($is_apc_installed) {
+                            apcu_store($cache_name, $parsed_ini, self::$apcu_cache_ttl);
+                        }
+
+                        self::$translations += $parsed_ini;
+                    }
                 }
             }
         }
