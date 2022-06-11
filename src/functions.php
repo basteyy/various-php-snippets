@@ -196,12 +196,17 @@ if (!function_exists('varDebug')) {
     #[NoReturn] function varDebug(...$mixed)
     {
         $cache_output = function ($item) {
-            ob_clean();
-            var_dump($item);
-
-            $data = ob_get_contents();
-
-            return is_string($data) ? (htmlentities($data)) : 'nodata' . $data;
+            ob_start();
+            try {
+                var_dump($item);
+                $data = ob_get_clean();
+                return is_string($data) ? (htmlentities($data)) : 'nodata' . $data;
+            } catch (\Throwable $ex) {
+                // PHP8 ArgumentCountError for 0 arguments, probably..
+                // in php<8 this was just a warning
+                ob_end_clean();
+                throw $ex;
+            }
         };
 
         $x = 0;
