@@ -195,6 +195,7 @@ if (!function_exists('varDebug')) {
      */
     #[NoReturn] function varDebug(...$mixed)
     {
+        ob_start();
         $cache_output = function ($item) {
             ob_start();
             try {
