@@ -25,6 +25,9 @@
         "php": "^8.2|8.1.*",
         "ext-iconv": "*",
         "ext-apcu": "*",
-        "ext-intl": "*"
+        "ext-intl": "*",
+        "basteyy/php-i18n": "^1.0",
+        "basteyy/var-debug": "^1.1",
+        "basteyy/php-stringer": "^0.0.1"
     }
 }

@@ -57,10 +57,11 @@ if (!function_exists('remove_double_slashes')) {
      * Remove double slashed from a string
      * @param string $path
      * @return string
+     * @deprecated Use basteyy/php-stringer instead
      */
     function remove_double_slashes(string $path): string
     {
-        return str_replace('//', '/', $path);
+        return \basteyy\Stringer\remove_double_slashes($path);
     }
 }
 
@@ -68,10 +69,11 @@ if (!function_exists('getRandomString')) {
     /**
      * Return a random key in the length of $length
      * @throws Exception
+     * @deprecated Use basteyy/php-stringer instead
      */
     function getRandomString(int $length = 32) : string
     {
-        return substr(bin2hex(random_bytes($length)), 0, $length);
+        return \basteyy\Stringer\getRandomAlphaString($length);
     }
 }
 
@@ -79,10 +81,11 @@ if (!function_exists('getRandomLowerAlphaString')) {
     /**
      * Return a random key in the length of $length
      * @throws Exception
+     * @deprecated Use basteyy/php-stringer instead
      */
     function getRandomLowerAlphaString(int $length = 32) : string
     {
-        return getRandomAlphaString($length, 'abcdefghijklmnopqrstuvwxyz');
+        return \basteyy\Stringer\getRandomString($length, 'abcdefghijklmnopqrstuvwxyz');
     }
 }
 
@@ -90,10 +93,11 @@ if (!function_exists('getRandomUpperAlphaString')) {
     /**
      * Return a random key in the length of $length
      * @throws Exception
+     * @deprecated Use basteyy/php-stringer instead
      */
     function getRandomUpperAlphaString(int $length = 32) : string
     {
-        return getRandomAlphaString($length, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        return \basteyy\Stringer\getRandomString($length, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
     }
 }
 
@@ -101,15 +105,11 @@ if (!function_exists('getRandomAlphaString')) {
     /**
      * Return a random key in the length of $length
      * @throws Exception
+     * @deprecated Use basteyy/php-stringer instead
      */
     function getRandomAlphaString(int $length = 32, string $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') : string
     {
-        $charactersLength = strlen($characters);
-        $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[rand(0, $charactersLength - 1)];
-        }
-        return $randomString;
+        return \basteyy\Stringer\getRandomAlphaString($length);
     }
 }
 
@@ -147,28 +147,11 @@ if (!function_exists('getSlugifiedText')) {
      * @param string $text
      * @param string $divider
      * @return string
+     * @deprecated Use basteyy/php-stringer instead
      */
     function getSlugifiedText(string $text, string $divider = '-', string $empty_default_text = 'n-a'): string
     {
-        // replace non letter or digits by divider
-        $text = preg_replace('~[^\pL\d]+~u', $divider, $text);
-
-        // transliterate
-        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
-
-        // remove unwanted characters
-        $text = preg_replace('~[^-\w]+~', '', $text);
-
-        // trim
-        $text = trim($text, $divider);
-
-        // remove duplicate divider
-        $text = preg_replace('~-+~', $divider, $text);
-
-        // lowercase
-        $text = strtolower($text);
-
-        return $text ?? $empty_default_text;
+        return \basteyy\Stringer\getSlugifiedText($text, $divider, $empty_default_text);
     }
 }
 
@@ -179,68 +162,25 @@ if (!function_exists('slugify')) {
      * @param string $text
      * @param string $divider
      * @return string
-     * @deprecated Use getSlugifiedText
+     * @deprecated Use basteyy/php-stringer instead
      */
     function slugify(string $text, string $divider = '-'): string
     {
-        return getSlugifiedText($text, $divider);
+        return \basteyy\Stringer\slugify($text, $divider);
     }
 }
 
 if (!function_exists('varDebug')) {
     /**
-     * Dump all passed variables and exit the script. Used a styled output. Accordion inmspired by Raúl Barrera
+     * Dump all passed variables and exit the script. Used a styled output. Accordion inspired by Raúl Barrera
      * @param ...$mixed
+     * @throws \Throwable
      * @see https://codepen.io/raubaca/pen/PZzpVe
+     * @deprecated Use varDebug from basteyy/var-debug instead
      */
     #[NoReturn] function varDebug(...$mixed)
     {
-        ob_start();
-        $cache_output = function ($item) {
-            ob_start();
-            try {
-                var_dump($item);
-                $data = ob_get_clean();
-                return is_string($data) ? (htmlentities($data)) : 'nodata' . $data;
-            } catch (\Throwable $ex) {
-                // PHP8 ArgumentCountError for 0 arguments, probably..
-                // in php<8 this was just a warning
-                ob_end_clean();
-                throw $ex;
-            }
-        };
-
-        $x = 0;
-        $data_collection = '';
-        foreach ($mixed as $item) {
-            $x++;
-            $xx = time() . $x;
-            $data_collection .= '<div><input type="checkbox" id="_debug_' . $xx . '" checked /><label for="_debug_' . $xx . '">#' . $x .
-                ' <span class="google" data-debug="debug_' . $xx . '">Google</span></label> <pre><code id="debug_' . $xx . '">';
-            $data_collection .= $cache_output($item);
-            $data_collection .= '</code></pre></div>';
-        }
-
-        $enviremental = ['SERVER' => $_SERVER, 'POST' => $_POST, 'GET' => $_GET, 'REQUEST' => $_REQUEST];
-
-        foreach ($enviremental as $env => $values) {
-            $data_collection .= '<div id="' . $env . '"><input type="checkbox" id="_' . $env . '"><label for="_' . $env . '">$_' . $env . '</label> <pre><code><table>';
-
-            foreach ($enviremental[$env] as $name => $content) {
-                $data_collection .= sprintf('<tr><td class="title"><span class="copyme">$_%s[\'%s\']</span> </td> <td>=&gt;</td>  <td><pre class="in-table"><code>%s</code></pre></td></tr>',
-                    $env,
-                    $name,
-                    $cache_output
-                    ($content));
-            }
-
-            // $data_collection .= $cache_output();
-            $data_collection .= '</table></code></pre></div>' . PHP_EOL;
-        }
-        http_response_code(503);
-        ob_clean();
-        include __DIR__ . DIRECTORY_SEPARATOR . 'Templates' . DIRECTORY_SEPARATOR . 'varDebugTemplate.php';
-        exit();
+        \varDebug($mixed);
     }
 }
 
@@ -251,18 +191,11 @@ if (!function_exists('__')) {
      * @param string $string
      * @param ...$args
      * @return string
+     * @deprecated Use __ from basteyy/php-i18n instead
      */
     function __(string $string, ...$args): string
     {
-
-        // Get the translation
-        $string = i18n::getTranslation($string);
-
-        if (count($args) == 0) {
-            return $string;
-        }
-
-        return sprintf($string, ...$args);
+        return \basteyy\I18n\I18n::getTranslation($string, ...$args);
     }
 }
 
