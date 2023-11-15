@@ -5,7 +5,7 @@ declare(strict_types=1);
  *
  * A few PHP snippets which I have used many times in many projects. Contributions are appreciated.
  *
- * @author Sebastian Eiweleit <sebastian@eiweleit.de>
+ * @author basteyy <sebastian@xzit.online>
  * @website https://github.com/basteyy/various-php-snippets
  * @license MIT
  */
